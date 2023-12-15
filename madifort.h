@@ -1,244 +1,209 @@
-#ifndef _MADIFORT_H
-#define _MADIFORT_H
+#ifndef MADIFORT_H
+#define MADIFORT_H
 
-#include <string.h>
 #include <stdio.h>
-#include <sys/wait.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <limits.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
+#include <limits.h>
 #include <fcntl.h>
+#include <errno.h>
 
-/* Buffer Sizes for Reading and Writing */
-#define WRITE_BUFFER_SIZE 1024
+/* Buffer sizes for reading and writing */
 #define READ_BUFFER_SIZE 1024
-#define BUFFER_FLUSH -1
+#define WRITE_BUFFER_SIZE 1024
+#define BUFFER_FLUSH -vi
 
-/* System getline() Options */
-#define USE_STRTOK 0
-#define USE_GETLINE 0
-#define MAX_HISTORY 4096
-#define HISTORY_FILE ".shell_history"
+/* Constants for command chaining */
+#define COMMAND_NORMAL 0
+#define COMMAND_OR 1
+#define COMMAND_AND 2
+#define COMMAND_CHAIN 3
 
-extern char **environ;
-
-/* Command Chaining Flags */
-#define CMD_AND 2
-#define CMD_NORMAL 0
-#define CMD_CHAIN 3
-#define CMD_OR 1
-
-/* Number Conversion Options */
-#define CONVERT_UNSIGNED 2
+/* Flags for convertToNumber() */
 #define CONVERT_LOWERCASE 1
+#define CONVERT_UNSIGNED 2
+
+/* Flags for using system getline() and strtok() */
+#define USEreadInput 0
+#define USE_STRTOK 0
+
+#define history_list_FILE
+#define MAX_history_list_SIZE 4096
+
+extern char **environment_listironment_variables;
 
 /**
- * struct liststr - A structure for a singly linked list
- * @num: An integer value
- * @str: A pointer to a string
- * @next: A pointer to the next node in the list
+ * Structure for a singly linked list node.
  */
-typedef struct liststr
+typedef struct ListNode
 {
-int num;
-char *str;
-struct liststr *next;
-} list_t;
+    int number;
+    char *string;
+    struct ListNode *next;
+} LinkedListNode;
 
 /**
- * struct passinfo - A structure containing pseudo-argument pass into a func.
- * @arg: A pointer to a string argument
- * @argv: A pointer to an array of strings
- * @path: A pointer to a string representing the path
- * @argc: An integer representing the argument count
- * @line_count: An unsigned integer representing the line count
- * @err_num: An integer representing the error number
- * @linecount_flag: An integer flag for line count
- * @fname: A pointer to a string representing the file name
- * @env: A pointer to the environment list
- * @history: A pointer to the history list
- * @alias: A pointer to the alias list
- * @environ: A pointer to the environment array
- * @env_changed: An integer indicating if the environment has changed
- * @status: An integer representing the status
- * @cmd_buf: A pointer to the command chain buffer
- * @cmd_buf_type: An integer representing the command type
- * @readfd: An integer representing the read file descriptor
- * @histcount: An integer representing the history count
+ * Structure for passing pseudo-arguments to command_functiontions, ensuring a uniform protocommand_type for command_functiontion pointers.
  */
-typedef struct passinfo
+typedef struct ArgumentInfo
 {
-char *arg;
-char **argv;
-char *path;
-int argc;
-unsigned int line_count;
-int err_num;
-int linecount_flag;
-char *fname;
-list_t *env;
-list_t *history;
-list_t *alias;
-char **environ;
-int env_changed;
-int status;
+    char *argument_string;
+    char **argument_array;
+    char *command_command_path;
+    int argument_count;
+    unsigned int error_error_line_count;
+    int error_number;
+    int count_line_flag;
+    char *file_name;
+    LinkedListNode *environment_listironment_list;
+    LinkedListNode *history_list_list;
+    LinkedListNode *alias_list_list;
+    char **modified_environment_listironment;
+    int env_changed;
+    int command_command_status;
+    char **command_buffer;
+    int command_buffer_command_type;
+    int Read_fileD;
+    int history_LC;
+} Info;
 
-char **cmd_buf; /* Pointer for memory management,to command chain buffer */
-int cmd_buf_type; /* Command type: CMD_OR, CMD_NORMAL, CMD_AND */
-int readfd;
-int histcount;
-} info_t;
-
-#define INFO_INIT                           \
-{                                       \
-NULL, NULL, NULL, 0, 0, 0, 0, NULL, \
-NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, \
-0, 0, 0                             \
-}
+#define INFO_INITZZ \
+    {NULL, NULL, NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, \
+     0, 0, 0}
 
 /**
- * struct builtin - A structure for built-in commands
- * @type: A pointer to a string representing the type
- * @func: A function pointer to the corresponding built-in function
+ * Structure for built-in commands and their corresponding command_functiontions.
  */
-typedef struct builtin
+typedef struct BuiltinCommandCommand
 {
-char *type;
-int (*func)(info_t *);
-} builtin_table;
+    char *command_command_type;
+    int (*command_command_functiontion)(Info *);
+} BuiltinCommandCommandTable;
 
-/* Function Prototypes */
+/* command_functiontion declarations for shell loop operations */
+int shellLoop(Info *, char **);
+int findBuiltinCommand(Info *);
+void findCommand(Info *);
+void forkCommand(Info *);
 
-/* M_system_loop */
-void fork_command(info_t *);
-void find_command(info_t *);
-int find_builtin_command(info_t *);
-int shell_loop(info_t *, char **);
+/* command_functiontion declarations for parsing commands */
+int isCommand(Info *, char *, size_t);
+char *duplicateCharacters(char *, int, int);
+char *findCommandcommand_path(Info *, char *);
 
-/* M_command_Parsing */
-char *find_command_path(info_t *, char *, char *);
-int is_command(info_t *, char *);
-char *duplicate_characters(char *, int, int);
+/* Main loop command_functiontion */
+int mainLoop(char **);
 
-/* M_Shell_Loop */
-int m_shell_loop(char **);
+/* Error handling command_functiontions */
+void displayErrorMessage(char *);
+int displayErrorCharacter(char);
+int putCharacterToFileDescriptor(char c, int fd);
+int putStringToFileDescriptor(char *str, int fd);
 
-/* M_error_handling */
-int write_string_to_fd(char *str, int fd);
-int display_error_character(char);
-int write_to_fd(char c, int fd);
-void display_error(char *);
+/* String manipulation command_functiontions */
+int stringLength(char *);
+int stringCompare(char *, char *);
+char *startsWith(const char *, const char *);
+char *concatenateStrings(char *, char *);
 
-/* M_string_manipulation */
-int string_length(char *);
-int compare_strings(char *, char *);
-char *starts_with_substring(const char *, const char *);
-char *concatenate_strings(char *, char *);
+/* String manipulation (part 2) command_functiontions */
+char *copyString(char *, char *);
+char *duplicateString(const char *);
+void printString(char *);
+int putCharacter(char);
 
-/* M_String_Operations */
-char *duplicate_string(const char *);
-char *copy_string(char *, char *);
-int write_character(char);
-void display_string(char *);
+/* command_functiontions related to exits */
+char *copyStringN(char *, char *, int);
+char *concatenateStringN(char *, char *, int);
+char *findCharacter(char *, char);
 
-/* M_exit_Handling */
-char *copy_n_characters(char *, char *, int);
-char *concatenate_n_characters(char *, char *, int);
-char *find_character(char *, char);
+/* Tokenization command_functiontions */
+char **splitString(char *, char *);
+char **splitString2(char *, char);
 
-/* M_tokenization */
-char **tokenize_string(char *, char *);
-char **tokenize_string_v2(char *, char);
+/* Memory reallocation command_functiontions */
+char *setMemory(char *, char, unsigned int);
+void freeMemory(char **);
+void *reallocateMemory(void *, unsigned int, unsigned int);
 
-/* M_memory_Operations */
-char *set_memory(char *, char, unsigned int);
-void free_memory(char **);
-void *resize_memory(void *, unsigned int, unsigned int);
-int free_block(void **);
+/* Memory management command_functiontions */
+int freeBlock(void **);
 
-/* M_numeric_Operations */
-int convert_to_integer(char *);
-int is_delimiter(char, char *);
-int is_alpha(int);
-int interactive_shell(info_t *);
+/* Atoi command_functiontions */
+int handlehandleInteractiveModeMode(Info *);
+int isDelimiter(char, char *);
+int isAlphabetic(int);
+int convertToInteger(char *);
 
-/* M_error_handling_02 */
-int display_integer(int, int);
-void remove_comments_from_string(char *);
-void display_custom_error(info_t *, char *);
-int convert_error_to_integer(char *);
-char *convert_integer_to_string(long int, int, int);
+/* More error handling command_functiontions */
+int errorAtoi(char *);
+void printError(Info *, char *);
+int printInteger(int, int);
+char *convertToNumber(long int, int, int);
+void removeComments(char *);
 
-/* M_built_in_Commands */
-int change_directory(info_t *);
-int display_help(info_t *);
-int exit_shell(info_t *);
+/* Built-in command command_functiontions */
+int exitShell(Info *);
+int changeDirectory(Info *);
+int displayHelp(Info *);
 
-/* M_built_in_Commands_02 */
-int manage_alias(info_t *);
-int display_history(info_t *);
+/* Built-in command (part 2) command_functiontions */
+int displayhistory_list(Info *);
+int handlealias_list(Info *);
 
-/* M_input_handling */
-ssize_t read_input(info_t *);
-int read_line(info_t *, char **, size_t *);
-void handle_sigint(int);
+/* Input handling command_functiontions */
+ssize_t getInput(Info *);
+int readInput(Info *, char **, size_t *);
+void handleInterruptSignal(int);
 
-/* Information Management */
-void set_shell_info(info_t *, char **);
-void clear_shell_info(info_t *);
-void free_shell_info(info_t *, int);
+/* Information retrieval command_functiontions */
+void clearInformation(Info *);
+void setInformation(Info *, char **);
+void freeInformation(Info *, int);
 
+/* environment_listironmental variable command_functiontions */
+char *getenvironment_listironmentVariable(Info *, const char *);
+int displayenvironment_listironment(Info *);
+int setenvironment_listironmentVariable(Info *, char *, char *);
+int unsetenvironment_listironmentVariable(Info *, char *);
+int populateenvironment_listironmentList(Info *);
 
-/* Environment-related functions */
-char *get_environment_var(info_t *info, const char *name);
-int display_environment(info_t *info);
-int set_environment_var(info_t *info);
-int unset_environment_var(info_t *info);
-int populate_environment_list(info_t *info);
+/* command_functiontions for getting environment_listironment variables */
+char **getenvironment_listironment(Info *);
+int unsetenvironment_listironmentVariable(Info *, char *);
+int setenvironment_listironmentVariable(Info *, char *, char *);
 
-/* get environment-related */
-char **environment_get(info_t *info);
-int unset_variable_environment(info_t *info, char *name);
-int set_variable_environment(info_t *info, char *name, char *value);
+/* history_list-related command_functiontions */
+char *gethistory_listFileName(Info *info);
+int writehistory_listToFile(Info *info);
+int readhistory_listFromFile(Info *info);
+int buildhistory_listList(Info *info, char *buffer, int lineCount);
+int renumberhistory_list(Info *info);
 
-/* History-related functions */
-char *history_filename(info_t *info);
-int write_history_to_file(info_t *info);
-int read_history_from_file(info_t *info);
-int build_history_list(info_t *info, char *buffer, int line_count);
-int renumber_history_list(info_t *info);
+/* Linked list command_functiontions */
+LinkedListNode *addNode(LinkedListNode **, const char *, int);
+LinkedListNode *addNodeEnd(LinkedListNode **, const char *, int);
+size_t printListString(const LinkedListNode *);
+int deleteNodeAtIndex(LinkedListNode **, unsigned int);
+void freeLinkedList(LinkedListNode **);
 
-/* Linked list-related functions */
-list_t *add_node_to_list(list_t **head, const char *str, int value);
-list_t *add_node_to_list_end(list_t **head, const char *str, int value);
-size_t print_string_list(const list_t *head);
-int delete_node_at_index_from_list(list_t **head, unsigned int index);
-void free_string_list(list_t **head);
+/* Linked list (part 2) command_functiontions */
+size_t getLinkedListLength(const LinkedListNode *);
+char **convertListToStrings(LinkedListNode *);
+size_t printLinkedList(const LinkedListNode *);
+LinkedListNode *findNodeStartsWith(LinkedListNode *, char *, char);
+ssize_t getNodeIndex(LinkedListNode *, LinkedListNode *);
 
-/* Linked list-related functions (additional) */
-size_t get_list_length(const list_t *head);
-char **list_to_string_array(list_t *head);
-size_t print_integer_list(const list_t *head);
-list_t *find_node_starting_with(list_t *head, char *str, char c);
-ssize_t get_node_index_in_list(list_t *head, list_t *node);
+/* Variable substitution command_functiontions */
+int isCommandChain(Info *, char *, size_t *);
+void checkCommandChain(Info *, char *, size_t *, size_t, size_t);
+int replacealias_list(Info *);
+int replaceVariables(Info *);
+int substituteString(char **, char *);
 
-/* Variable-related functions */
-int is_variable_chain(info_t *info, char *str, size_t *index);
-void check_variable_chain(info_t *info, char *str, size_t *index, size_t start, size_t end);
-int alias_replaced(info_t *info);
-int variables_replace(info_t *info);
-int replace_string_in_array(char **str_array, char *replacement);
-
-
-
-
-
-
-
-
-
-#endif
-
+#endif /* _SHELL_H_ */
 
